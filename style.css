@@ -12,10 +12,6 @@ h1 {
     margin: 0;
 }
 
-p, h2 {
-    margin: 0;
-}
-
 .container {
     width: 468px;
     margin-top: 30px;
@@ -27,7 +23,7 @@ p, h2 {
     margin-bottom: 20px;
 }
 
-.grid {
+.grade {
     display: flex;
     flex-wrap: wrap;
     width: 456px;
@@ -38,7 +34,7 @@ p, h2 {
     margin-top: 20px;
 }
 
-.grid div {
+.grade div {
     width: 100px;
     height: 100px;
     margin: 7px;

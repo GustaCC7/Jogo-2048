@@ -1,108 +1,40 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const exibirGrade = document.querySelector('.grid')
-    const exibirPontuação = document.getElementById('#score')
-    const exibirResulatado = document.getElementById('#result')
-    const width = 4
-    const quadrados = []
-    const pontuação = 0
-
-    // Função recursiva para adicionar quadrados
-    function criarTabuleiro(i = 0) {
-    if (i >= width * width) return; // Condição de parada
+    const TAMANHO_GRADE = 4 //define o tamnho da grade (4x4)
+    const PEÇAS_TABULEIRO = 2 //quantidade de peças iniciais no tabuleiro
     
-    const quadrado = document.createElement('div');
-    quadrado.innerHTML = 0;
-    exibirGrade.appendChild(quadrado);
-    quadrados.push(quadrado);
+    const  elementoGrade = document.querySelector('.grade') //elemento HTML onde os quadrados seram rederizados
+    const elementoPontução = document.getElementById('.pontuação') //elemento HTML onde a pontuação será rederizada
 
-    // Chamada recursiva para o próximo índice
-    criarTabuleiro(i + 1);
-}
-
-criarTabuleiro(); // Inicia a criação do tabuleiro
-
-gerar();
-gerar();
-
-
-    //gerar número novo
-    function gerar() {
-        const numeroAleatorio = Math.floor(Math.random() * quadrados.length)
-        console.log(numeroAleatorio)
-        if (quadrados[numeroAleatorio].innerHTML == 0) {
-            quadrados[numeroAleatorio].innerHTML = 2
-            //verificarjogoacabou()
-        } else gerar()
+    const inicializar = () => {
+        const grade = Array.from({ length: PEÇAS_TABULEIRO }).reduce(
+            (acc) = adicionaBlocoAleatorio(acc),
+            criarGradeVazia()
+        )
+        return Object.freeze({
+            grade, //grade inicia com as peças posicionadas aleatoriamente
+            pontuação: 0, //pontuação inicial
+            fimDeJogo: false, //o jogo começa sem estar finalizado
+        })
     }
 
-    function moveRight(i = 0) {
-        if (i >= 16) return; // Condição de parada
-        
-        if (i % 4 === 0) {
-            const totalUm = quadrados[i].innerHTML;
-            const totalDois = quadrados[i + 1].innerHTML;
-            const totalTrês = quadrados[i + 2].innerHTML;
-            const totalQuatro = quadrados[i + 3].innerHTML;
-            const row = [parseInt(totalUm), parseInt(totalDois), parseInt(totalTrês), parseInt(totalQuatro)];
-    
-            const filtraLinhaVermelha = row.filter(num => num)
-            const ausente = 4 - filtraLinhaVermelha.length
-            const zeros = Array(ausente).fill(0)
-            const novaLiha = zeros.concat(filtraLinhaVermelha)
+    //cria uma grade vazia (4x4) prenchida com zeros
+    const criarGradeVazia = () =>
+        Object.freeze([...Array(TAMANHO_GRADE)].map(() => Array(TAMANHO_GRADE).fill(0)))
 
-            quadrados[i].innerHTML = novaLiha[0]
-            quadrados[i+1].innerHTML = novaLiha[1]
-            quadrados[i+2].innerHTML = novaLiha[2]
-            quadrados[i+3].innerHTML = novaLiha[3]
-        }
-        // Chamada recursiva para o próximo índice
-        moveRight(i + 1);
-    }
+    //adiciona uma peça (2 ou 4) em uma posição aleatoria na grade
+    const adicionaBlocoAleatorio = (grade) => {
+        const célulasVazias =  obterCélulasVazias(grade) //pega todas as células vazias
+        if(célulasVazias.lenght === 0) return grade //se não houver células vazias, retorne grade
 
-    function conmbinarLinha() {
-        for (let i = 0; i < 15; i++) {
-            if (quadrados[i].innerHTML === quadrados[i+1].innerHTML){
-                let totalCombinado = parseInt(quadrados[i].innerHTML) + parseInt(quadrados[i+1].innerHTML)
-            quadrados[i].innerHTML = totalCombinado
-            quadrados[i+1].innerHTML = 0
-            pontuação += totalCombinado
-            exibirPontuação.innerHTML = pontuação
-            }
-        }
-        //verificar se ganhou()
+        const célulasAleatorias = célulasVazias[Math.floor(Math.random() * célulasVazias.lenght)]
+        const novaGrade = grade.map((row, rowIndex) =>
+            row.map((cell, colIndex) =>
+                rowIndex === randomCell.row && colIndex === randomCell.col
+                    ? Math.random() > 0.1 ? 2 : 4 //adiciona 2 (90%) ou 4 (10%) na célula escolhida
+                    : cell
+            )
+        )
+        return Object.freeze(novaGrade) //retorna uma grade imutável
     }
-
-    // atribuir funções as teclas
-    function controlar(e) {
-        // Chamando as funções diretamente de acordo com a tecla pressionada
-        const keyMap = {
-            'ArrowLeft': keyLeft,
-            'ArrowRight': keyRight
-        };
-    
-        const action = keyMap[e.key];
-        if (action) {
-            action(); // Executa a ação correspondente
-        }
-    }
-    
-    document.addEventListener('keydown', controlar);
-    
-    function keyLeft() {
-        // Executa as operações de forma encadeada
-        moveLeft();
-        conmbinarLinha();
-        moveLeft();
-        gerar();
-    }
-    
-    function keyRight() {
-        // Mesma estrutura que a esquerda
-        moveRight();
-        conmbinarLinha();
-        moveRight();
-        gerar();
-    }
-    
 
 })
