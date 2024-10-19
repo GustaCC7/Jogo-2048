@@ -53,28 +53,88 @@ document.addEventListener('DOMContentLoaded', () => {
             []
         )
 
-        //função para combinar os blocos iguais e calcular a pontuação
-        const juntarBlocos = (row) => {
-            const juntar = row.reduce(
-                (acc, cell) => {
-                    const { juntar, pontuação} = acc
-                    if (cell !== 0){
-                        if (juntar.lenght > 0 && juntar[juntar.lenght - 1] === cell) {
-                            juntar[juntar.lenght - 1] *= 2 //dobra o valor do bloco se for igual ao anterior
-                            acc.pontuação += juntar[juntar.lenght - 1] //atualiza a pontução com o valor combinado
-                        } else {
-                            juntar.push(cell) //caso contrário, apenas move o bloco para frente
-                        }
+    //função para combinar os blocos iguais e calcular a pontuação
+    const juntarBlocos = (row) => {
+        const juntar = row.reduce(
+            (acc, cell) => {
+                const { juntar, pontuação} = acc
+                if (cell !== 0){
+                    if (juntar.lenght > 0 && juntar[juntar.lenght - 1] === cell) {
+                        juntar[juntar.lenght - 1] *= 2 //dobra o valor do bloco se for igual ao anterior
+                        acc.pontuação += juntar[juntar.lenght - 1] //atualiza a pontução com o valor combinado
+                    } else {
+                        juntar.push(cell) //caso contrário, apenas move o bloco para frente
                     }
-                    return acc
-                },
-                {juntar: {}, pontuação: 0} //inicializa uma lista para blocos combinados e a pontuação
-            )
-            return {
-                juntar: [...juntar.juntar, ...Array(TAMANHO_GRADE - juntar.juntar.lenght).fill(0)], // preenche o restante com zero
-                pontuação: juntar.pontuação,
+                }
+                return acc
+            },
+            {juntar: {}, pontuação: 0} //inicializa uma lista para blocos combinados e a pontuação
+        )
+        return {
+            juntar: [...juntar.juntar, ...Array(TAMANHO_GRADE - juntar.juntar.lenght).fill(0)], // preenche o restante com zero
+            pontuação: juntar.pontuação,
             }
+    }
+    
+    // função para mover as peças ma direção especificada
+    const mover = (grade, direção) => {
+        const gradeNova = [...grade]
+        const resultado = Array.from({ length: TAMANHO_GRADE }).reduce(
+            (acc, _, i) => {
+                const row = direção === 'left' ||direção === 'right'
+                    ? grade[i] //movimentos horizontais
+                    : grade.map((row) => row[i]) //movimentos verticais
+
+                const rowInvertida = direção === 'right' || direção === 'down'
+                    ? row.reverse() //se estiver indo para a direita ou para baixo, reverte a linha combinada novamente            
+                    : row
+                
+                const { juntar, pontuação } = juntarBlocos(rowInvertida) //combina as peças e obtém a nova liha de pontuação
+                
+                const finalRow = direção === 'right' || direção === 'down'
+                    ? juntar.reverse() // se a direção for direita/baixo reverte a linha e combinada novamente
+                    : juntar
+
+                const mudou = finalRow.every((val, index) => val === row[index]) //verifica se a linha mudou após a movimentação
+
+                if (direção === 'left' ||direção === 'right') {
+                    novaGrade[i] = finalRow //atualiza a linha inteira para movimentos horizontais
+                } else {
+                    finalRow.forEach((val, idx) => (novaGrade[idx][i] = val)) //atualiza as colunas para movimentos verticais
+                }
+
+                acc.movimento = acc.movimento || mudou // define se houve alguma movimentação 
+                acc.pontuação += pontuação //acumula a pontuação
+
+                return acc
+            },
+            { movimento: false, pontuação: 0 } //inicializa os acumuladores de movimento e pontuação
+        )
+
+        return { grade: Object.freeze(novaGrade), pontuação: resultado.pontuação, movimento: resultado.movimento } // retorna a nova grade imutavel
+    }
+
+    //atualiza o estado do jogo e verifica o status de fim de jogo
+    const atualizarEstado = (novoEstado) => {
+        //cria um novo estado imutável, sem modificar o original diretamente
+        const atualizarEstado = Object.freeze({
+            grade: novoEstado.grade, //atualiza a grade com o novo estado
+            pontuação: novoEstado.pontuação + (novoEstado.pontuação || 0), // atualiza a pontuação acumulada
+            fimDeJogo: checarFimDeJogo(novoEstado.grade), //verifica se o jogo acabou
+        })
+
+        //atuliza os elementos de interface de usuario (UI)
+        elementoPontução.textContent = atualizarEstado.pontuação //exibe a nova pontuaçao
+        rederizaGrade(atualizarEstado.grade) //rederiza a nova grade na interface
+
+        //verifica se p jogo acabou e exibe a mensagem de fim de jogo
+        if (atualizarEstado.fimDeJogo) {
+            document,getElementById('resultado').textContent = 'Fim de jogo! Reinicie o jogo para tentar novamente.'
         }
+
+        //retorna o novo estado atualizado, para que posssa ser reutilizado
+        return atualizarEstado
+    }
 
     //rederiza a grade no HTML
     const rederizaGrade = (grade) => {
@@ -89,7 +149,9 @@ document.addEventListener('DOMContentLoaded', () => {
         )
     }
 
-
-
+    //verifica se o jogo acabou (não há mais movimentos possiveis)
+    const checarFimDeJogo = (grade) => {
+        if (obterCélulasVazias (grade).lenght > 0) return false // se ouver células vazias, o jogo continua
+    }
 
 })
