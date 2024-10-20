@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const PEÇAS_TABULEIRO = 2 //quantidade de peças iniciais no tabuleiro
     
     const  elementoGrade = document.querySelector('.grade') //elemento HTML onde os quadrados seram rederizados
-    const elementoPontução = document.getElementById('.pontuação') //elemento HTML onde a pontuação será rederizada
+    const elementoPontução = document.getElementById('pontuação') //elemento HTML onde a pontuação será rederizada
 
     //inicializa o estado do jogo (grade, pontuação e status de fim de jogo)
     const inicializar = () => {
@@ -152,6 +152,46 @@ document.addEventListener('DOMContentLoaded', () => {
     //verifica se o jogo acabou (não há mais movimentos possiveis)
     const checarFimDeJogo = (grade) => {
         if (obterCélulasVazias (grade).lenght > 0) return false // se ouver células vazias, o jogo continua
-    }
+        
+        
+        return !grade.mover((row, rowIndex) =>
+            row.somar(
+                (cell, colIndex) =>
+                    (colIndex < TAMANHO_GRADE - 1 && cell === row[colIndex + 1]) ||
+                    (rowIndex < TAMANHO_GRADE - 1 && cell === grade[rowIndex + 1][colIndex])
 
+            )
+        )
+    }
+    // Captura os comandos do teclado para movimentar as peças
+    document.addEventListener('keydown', (e) => {
+        if (estado.fimDeJogo) return; // Se o jogo acabou, não faz nada
+
+        let novoEstado;
+        switch (e.key) {
+            case 'ArrowUp':
+                novoEstado = mover(estado.grade, 'up');
+                break;
+            case 'ArrowDown':
+                novoEstado = mover(estado.grade, 'down');
+                break;
+            case 'ArrowLeft':
+                novoEstado = mover(estado.grade, 'left');
+                break;
+            case 'ArrowRight':
+                novoEstado = mover(estado.grade, 'right');
+                break;
+            default:
+                return; // Ignora se não for uma tecla válida
+        }
+
+        // Verifica se houve alguma mudança no tabuleiro
+        if (novoEstado.movimento) {
+            const gradeAtualizada = addRandomTile(novoEstado.grade); // Adiciona uma nova peça aleatória
+            estado = atualizarEstado({ grade: gradeAtualizada, pontuação: novoEstado.pontuação }); // Atualiza o estado do jogo
+        }
+    });
+
+    let estado = inicializar(); // Inicializa o estado do jogo
+    rederizaGrade(estado.grade); // Renderiza a grade inicial
 })
