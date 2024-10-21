@@ -150,35 +150,50 @@ document.addEventListener('DOMContentLoaded', () => {
         )
     }
 
-    // Captura os comandos do teclado para movimentar as peças
-    document.addEventListener('keydown', (e) => {
-        if (estado.fimDeJogo) return // Se o jogo acabou, não faz nada
+    // Função para capturar os comandos de teclado de forma funcional
+    const capturarComandosTeclado = (estadoAtual, teclaPressionada) => {
+        if (estadoAtual.fimDeJogo) return estadoAtual; // Se o jogo acabou, retorna o estado atual
 
-        let novoEstado
-        switch (e.key) {
-            case 'ArrowUp':
-                novoEstado = mover(estado.grade, 'up')
-                break
-            case 'ArrowDown':
-                novoEstado = mover(estado.grade, 'down')
-                break
-            case 'ArrowLeft':
-                novoEstado = mover(estado.grade, 'left')
-                break
-            case 'ArrowRight':
-                novoEstado = mover(estado.grade, 'right')
-                break
-            default:
-                return // Ignora se não for uma tecla válida
-        }
+        const comandos = {
+            'ArrowUp': 'up',
+            'ArrowDown': 'down',
+            'ArrowLeft': 'left',
+            'ArrowRight': 'right'
+        };
 
-        // Verifica se houve alguma mudança no tabuleiro
-        if (novoEstado.movimento) {
-            const gradeAtualizada = adicionaBlocoAleatorio(novoEstado.grade) // Adiciona uma nova peça aleatória
-            estado = atualizarEstado({ grade: gradeAtualizada, pontuacao: novoEstado.pontuacao }) // Atualiza o estado do jogo
-        }
-    })
+        // Verifica se a tecla pressionada é uma seta válida
+        const direcao = comandos[teclaPressionada];
+        if (!direcao) return estadoAtual;
 
-    let estado = inicializar() // Inicializa o estado do jogo
-    rederizaGrade(estado.grade) // Renderiza a grade inicial
+        // Realiza o movimento de forma imutável
+        const novoEstado = mover(estadoAtual.grade, direcao);
+
+        // Se não houve movimento, retorna o estado sem alterações
+        if (!novoEstado.movimento) return estadoAtual;
+
+        // Adiciona uma nova peça aleatória de forma imutável
+        const gradeAtualizada = adicionaBlocoAleatorio(novoEstado.grade);
+
+        // Atualiza o estado de forma imutável
+        return atualizarEstado({
+            ...estadoAtual, // Copia o estado anterior
+            grade: gradeAtualizada,
+            pontuacao: novoEstado.pontuacao
+        });
+    };
+
+    // Função recursiva para renderizar e capturar os eventos de forma funcional
+    const executarJogo = (estadoAtual) => {
+        // Renderiza a grade
+        rederizaGrade(estadoAtual.grade);
+
+        // Captura o evento de teclado de forma funcional
+        document.addEventListener('keydown', (e) => {
+            const novoEstado = capturarComandosTeclado(estadoAtual, e.key); // Atualiza o estado de forma imutável
+            executarJogo(novoEstado); // Chama recursivamente com o novo estado
+        }, { once: true }); // Usa { once: true } para garantir que o evento seja tratado uma vez por ciclo
+    };
+
+    // Inicializa o estado do jogo de forma imutável e começa a execução
+    executarJogo(inicializar());
 })
