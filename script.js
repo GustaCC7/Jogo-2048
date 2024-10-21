@@ -1,44 +1,44 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const TAMANHO_GRADE = 4 //define o tamanho da grade (4x4)
-    const PEÇAS_TABULEIRO = 2 //quantidade de peças iniciais no tabuleiro
+    const TAMANHO_GRADE = 4 // Define o tamanho da grade (4x4)
+    const PEÇAS_TABULEIRO = 2 // Quantidade de peças iniciais no tabuleiro
 
-    const elementoGrade = document.querySelector('.grade') //elemento HTML onde os quadrados serão renderizados
-    const elementoPontuacao = document.getElementById('pontuação') //elemento HTML onde a pontuação será renderizada
+    const elementoGrade = document.querySelector('.grade') // Elemento HTML onde os quadrados serão renderizados
+    const elementoPontuacao = document.getElementById('pontuação') // Elemento HTML onde a pontuação será renderizada
 
-    // inicializa o estado do jogo (grade, pontuação e status de fim de jogo)
+    // Inicializa o estado do jogo (grade, pontuação e status de fim de jogo)
     const inicializar = () => {
         const grade = Array.from({ length: PEÇAS_TABULEIRO }).reduce(
             (acc) => adicionaBlocoAleatorio(acc),
             criarGradeVazia()
         )
         return Object.freeze({
-            grade, //grade inicia com as peças posicionadas aleatoriamente
-            pontuacao: 0, //pontuação inicial
-            fimDeJogo: false, //o jogo começa sem estar finalizado
+            grade, // Grade inicia com as peças posicionadas aleatoriamente
+            pontuacao: 0, // Pontuação inicial
+            fimDeJogo: false, // O jogo começa sem estar finalizado
         })
     }
 
-    // cria uma grade vazia (4x4) preenchida com zeros
+    // Cria uma grade vazia (4x4) preenchida com zeros
     const criarGradeVazia = () =>
         Object.freeze([...Array(TAMANHO_GRADE)].map(() => Array(TAMANHO_GRADE).fill(0)))
 
-    // adiciona uma peça (2 ou 4) em uma posição aleatória na grade
+    // Adiciona uma peça (2 ou 4) em uma posição aleatória na grade
     const adicionaBlocoAleatorio = (grade) => {
-        const célulasVazias = obterCélulasVazias(grade) //pega todas as células vazias
-        if (célulasVazias.length === 0) return grade //se não houver células vazias, retorne grade
+        const célulasVazias = obterCélulasVazias(grade) // Pega todas as células vazias
+        if (célulasVazias.length === 0) return grade // Se não houver células vazias, retorne grade
 
         const célulasAleatorias = célulasVazias[Math.floor(Math.random() * célulasVazias.length)]
         const novaGrade = grade.map((row, rowIndex) =>
             row.map((cell, colIndex) =>
                 rowIndex === célulasAleatorias.row && colIndex === célulasAleatorias.col
-                    ? Math.random() > 0.1 ? 2 : 4 //adiciona 2 (90%) ou 4 (10%) na célula escolhida
+                    ? Math.random() > 0.1 ? 2 : 4 // Adiciona 2 (90%) ou 4 (10%) na célula escolhida
                     : cell
             )
         )
-        return Object.freeze(novaGrade) //retorna uma grade imutável
+        return Object.freeze(novaGrade) // Retorna uma grade imutável
     }
 
-    // encontra todas as células vazias na grade
+    // Encontra todas as células vazias na grade
     const obterCélulasVazias = (grade) =>
         grade.reduce(
             (acc, row, rowIndex) =>
@@ -52,94 +52,99 @@ document.addEventListener('DOMContentLoaded', () => {
             []
         )
 
-    // função para combinar os blocos iguais e calcular a pontuação
+    // Função para combinar os blocos iguais e calcular a pontuação
     const juntarBlocos = (row) => {
         const { juntar, pontuacao } = row.reduce(
             (acc, cell) => {
                 if (cell !== 0) {
                     if (acc.juntar.length > 0 && acc.juntar[acc.juntar.length - 1] === cell) {
-                        acc.juntar[acc.juntar.length - 1] *= 2 //dobra o valor do bloco se for igual ao anterior
-                        acc.pontuacao += acc.juntar[acc.juntar.length - 1] //atualiza a pontuação com o valor combinado
+                        acc.juntar[acc.juntar.length - 1] *= 2 // Dobra o valor do bloco se for igual ao anterior
+                        acc.pontuacao += acc.juntar[acc.juntar.length - 1] // Atualiza a pontuação com o valor combinado
                     } else {
-                        acc.juntar.push(cell) //caso contrário, apenas move o bloco para frente
+                        acc.juntar.push(cell) // Caso contrário, apenas move o bloco para frente
                     }
                 }
                 return acc
             },
-            { juntar: [], pontuacao: 0 } //inicializa uma lista para blocos combinados e a pontuação
+            { juntar: [], pontuacao: 0 } // Inicializa uma lista para blocos combinados e a pontuação
         )
         return {
-            juntar: [...juntar, ...Array(TAMANHO_GRADE - juntar.length).fill(0)], //preenche o restante com zero
+            juntar: [...juntar, ...Array(TAMANHO_GRADE - juntar.length).fill(0)], // Preenche o restante com zero
             pontuacao,
         }
     }
 
-    // função para mover as peças na direção especificada
+    // Função para mover as peças na direção especificada e acumular a pontuação corretamente
     const mover = (grade, direcao) => {
-        const novaGrade = [...grade]
+        const novaGrade = grade.map((row) => [...row]) // Cópia da grade para trabalhar nela
         const resultado = Array.from({ length: TAMANHO_GRADE }).reduce(
             (acc, _, i) => {
-                const row = direcao === 'left' || direcao === 'right' ? grade[i] : grade.map((row) => row[i]) //movimentos horizontais ou verticais
-                const rowInvertida = direcao === 'right' || direcao === 'down' ? row.reverse() : row //reverte se estiver indo para a direita ou para baixo
-                const { juntar, pontuacao } = juntarBlocos(rowInvertida) //combina as peças e obtém a nova linha e pontuação
-                const finalRow = direcao === 'right' || direcao === 'down' ? juntar.reverse() : juntar //reverte a linha se necessário
+                const row = direcao === 'left' || direcao === 'right' ? novaGrade[i] : novaGrade.map((row) => row[i])
+                const rowInvertida = direcao === 'right' || direcao === 'down' ? row.reverse() : row
+                const { juntar, pontuacao } = juntarBlocos(rowInvertida)
 
-                const mudou = finalRow.every((val, index) => val === row[index]) //verifica se a linha mudou após a movimentação
+                const finalRow = direcao === 'right' || direcao === 'down' ? juntar.reverse() : juntar
+                const mudou = finalRow.some((val, index) => val !== row[index]) // Verifica se a linha mudou
 
                 if (direcao === 'left' || direcao === 'right') {
-                    novaGrade[i] = finalRow //atualiza a linha inteira para movimentos horizontais
+                    novaGrade[i] = finalRow // Atualiza a linha inteira para movimentos horizontais
                 } else {
-                    finalRow.forEach((val, idx) => (novaGrade[idx][i] = val)) //atualiza as colunas para movimentos verticais
+                    finalRow.forEach((val, idx) => (novaGrade[idx][i] = val)) // Atualiza as colunas para movimentos verticais
                 }
 
-                acc.movimento = acc.movimento || !mudou //define se houve alguma movimentação
-                acc.pontuacao += pontuacao //acumula a pontuação
+                acc.movimento = acc.movimento || mudou // Define se houve movimentação
+                acc.pontuacao += pontuacao // Acumula a pontuação corretamente
                 return acc
             },
-            { movimento: false, pontuacao: 0 } //inicializa os acumuladores de movimento e pontuação
+            { movimento: false, pontuacao: 0 } // Inicializa os acumuladores de movimento e pontuação
         )
 
-        return { grade: Object.freeze(novaGrade), pontuacao: resultado.pontuacao, movimento: resultado.movimento } //retorna a nova grade imutável
+        return { grade: Object.freeze(novaGrade), pontuacao: resultado.pontuacao, movimento: resultado.movimento }
     }
 
-    // atualiza o estado do jogo e verifica o status de fim de jogo
+    // Atualiza o estado do jogo, garantindo a pontuação e fim de jogo
     const atualizarEstado = (novoEstado) => {
-        // cria um novo estado imutável, sem modificar o original diretamente
-        const atualizarEstado = Object.freeze({
-            grade: novoEstado.grade, //atualiza a grade com o novo estado
-            pontuacao: novoEstado.pontuacao + (novoEstado.pontuacao || 0), // atualiza a pontuação acumulada
-            fimDeJogo: checarFimDeJogo(novoEstado.grade), //verifica se o jogo acabou
+        const estadoAtualizado = Object.freeze({
+            grade: novoEstado.grade,
+            pontuacao: estado.pontuacao + novoEstado.pontuacao, // Somando a pontuação corretamente
+            fimDeJogo: checarFimDeJogo(novoEstado.grade), // Verifica se o jogo terminou
         })
 
-        // atualiza os elementos de interface de usuário (UI)
-        elementoPontuacao.textContent = atualizarEstado.pontuacao //exibe a nova pontuação
-        rederizaGrade(atualizarEstado.grade) //renderiza a nova grade na interface
+        elementoPontuacao.textContent = estadoAtualizado.pontuacao // Exibe a nova pontuação
+        rederizaGrade(estadoAtualizado.grade) // Renderiza a nova grade
 
-        // verifica se o jogo acabou e exibe a mensagem de fim de jogo
-        if (atualizarEstado.fimDeJogo) {
+        if (estadoAtualizado.fimDeJogo) {
             document.getElementById('resultado').textContent = 'Fim de jogo! Reinicie o jogo para tentar novamente.'
         }
 
-        // retorna o novo estado atualizado, para que possa ser reutilizado
-        return atualizarEstado
+        return estadoAtualizado
     }
 
-    // renderiza a grade no HTML
+    // Renderiza a grade no HTML
     const rederizaGrade = (grade) => {
-        elementoGrade.innerHTML = '' //limpa a grade anterior
+        elementoGrade.innerHTML = '' // Limpa a grade anterior
         grade.forEach((row) =>
             row.forEach((cell) => {
                 const peças = document.createElement('div')
                 peças.classList.add('peças')
-                peças.textContent = cell !== 0 ? cell : '' //adiciona o valor da célula ou vazio se for 0
-                elementoGrade.appendChild(peças) //adiciona a célula ao DOM
+    
+                // Adiciona a classe CSS correspondente ao valor da célula
+                if (cell !== 0) {
+                    peças.textContent = cell // Adiciona o valor da célula
+                    peças.classList.add(`peças-${cell}`) // Aplica a classe correspondente (ex: peças-2, peças-4, etc.)
+                } else {
+                    peças.textContent = '' // Celular vazia
+                }
+    
+                elementoGrade.appendChild(peças) // Adiciona a célula ao DOM
             })
         )
     }
+    
 
-    // verifica se o jogo acabou (não há mais movimentos possíveis)
+    // Verifica se o jogo acabou (não há mais movimentos possíveis)
     const checarFimDeJogo = (grade) => {
-        if (obterCélulasVazias(grade).length > 0) return false //se houver células vazias, o jogo continua
+        if (obterCélulasVazias(grade).length > 0) return false // Se houver células vazias, o jogo continua
 
         return !grade.some((row, rowIndex) =>
             row.some(
@@ -150,50 +155,26 @@ document.addEventListener('DOMContentLoaded', () => {
         )
     }
 
-    // Função para capturar os comandos de teclado de forma funcional
-    const capturarComandosTeclado = (estadoAtual, teclaPressionada) => {
-        if (estadoAtual.fimDeJogo) return estadoAtual; // Se o jogo acabou, retorna o estado atual
+    // Captura os comandos do teclado para movimentar as peças
+    document.addEventListener('keydown', (e) => {
+        if (estado.fimDeJogo) return // Se o jogo acabou, não faz nada
 
-        const comandos = {
-            'ArrowUp': 'up',
-            'ArrowDown': 'down',
-            'ArrowLeft': 'left',
-            'ArrowRight': 'right'
-        };
+        const novoEstado = e.key === 'ArrowUp'
+            ? mover(estado.grade, 'up')
+            : e.key === 'ArrowDown'
+            ? mover(estado.grade, 'down')
+            : e.key === 'ArrowLeft'
+            ? mover(estado.grade, 'left')
+            : e.key === 'ArrowRight'
+            ? mover(estado.grade, 'right')
+            : null
 
-        // Verifica se a tecla pressionada é uma seta válida
-        const direcao = comandos[teclaPressionada];
-        if (!direcao) return estadoAtual;
+        if (novoEstado && novoEstado.movimento) {
+            const gradeAtualizada = adicionaBlocoAleatorio(novoEstado.grade) // Adiciona uma nova peça aleatória
+            estado = atualizarEstado({ grade: gradeAtualizada, pontuacao: novoEstado.pontuacao }) // Atualiza o estado do jogo
+        }
+    })
 
-        // Realiza o movimento de forma imutável
-        const novoEstado = mover(estadoAtual.grade, direcao);
-
-        // Se não houve movimento, retorna o estado sem alterações
-        if (!novoEstado.movimento) return estadoAtual;
-
-        // Adiciona uma nova peça aleatória de forma imutável
-        const gradeAtualizada = adicionaBlocoAleatorio(novoEstado.grade);
-
-        // Atualiza o estado de forma imutável
-        return atualizarEstado({
-            ...estadoAtual, // Copia o estado anterior
-            grade: gradeAtualizada,
-            pontuacao: novoEstado.pontuacao
-        });
-    };
-
-    // Função recursiva para renderizar e capturar os eventos de forma funcional
-    const executarJogo = (estadoAtual) => {
-        // Renderiza a grade
-        rederizaGrade(estadoAtual.grade);
-
-        // Captura o evento de teclado de forma funcional
-        document.addEventListener('keydown', (e) => {
-            const novoEstado = capturarComandosTeclado(estadoAtual, e.key); // Atualiza o estado de forma imutável
-            executarJogo(novoEstado); // Chama recursivamente com o novo estado
-        }, { once: true }); // Usa { once: true } para garantir que o evento seja tratado uma vez por ciclo
-    };
-
-    // Inicializa o estado do jogo de forma imutável e começa a execução
-    executarJogo(inicializar());
+    estado = inicializar() // Inicializa o estado do jogo
+    rederizaGrade(estado.grade) // Renderiza a grade inicial
 })
