@@ -120,21 +120,46 @@ document.addEventListener('DOMContentLoaded', () => {
         return estadoAtualizado
     }
 
+    const coresPecas = {
+        2: '#eee4da',
+        4: '#ede0c8',
+        8: '#f2b179',
+        16: '#f59563',
+        32: '#f67c5f',
+        64: '#f65e3b',
+        128: '#edcf72',
+        256: '#edcc61',
+        512: '#edc850',
+        1024: '#edc53f',
+        2048: '#edc22e',
+        maior: '#3c3a32' // Cor para valores maiores que 2048
+    }
+    
     // Renderiza a grade no HTML
     const rederizaGrade = (grade) => {
         elementoGrade.innerHTML = '' // Limpa a grade anterior
         grade.forEach((row) =>
             row.forEach((cell) => {
                 const peças = document.createElement('div')
-                peças.classList.add('peças')
     
-                // Adiciona a classe CSS correspondente ao valor da célula
+                // Adiciona a cor correspondente ao valor da célula
                 if (cell !== 0) {
                     peças.textContent = cell // Adiciona o valor da célula
-                    peças.classList.add(`peças-${cell}`) // Aplica a classe correspondente (ex: peças-2, peças-4, etc.)
+                    peças.style.backgroundColor = coresPecas[cell] || coresPecas.maior // Aplica a cor conforme o valor, usa "maior" para valores > 2048
+                    peças.style.color = cell > 4 ? 'white' : '#776e65' // Cor do texto, branco para valores maiores
                 } else {
-                    peças.textContent = '' // Celular vazia
+                    peças.textContent = '' // Celula vazia
+                    peças.style.backgroundColor = '#cdc1b4' // Cor padrão para células vazias
                 }
+    
+                peças.style.borderRadius = '5px' // Aplicando estilo básico
+                peças.style.display = 'flex'
+                peças.style.justifyContent = 'center'
+                peças.style.alignItems = 'center'
+                peças.style.fontSize = '30px'
+                peças.style.fontWeight = 'bold'
+                peças.style.width = '100px'
+                peças.style.height = '100px'
     
                 elementoGrade.appendChild(peças) // Adiciona a célula ao DOM
             })

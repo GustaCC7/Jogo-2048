@@ -24,27 +24,25 @@ h1 {
 }
 
 .grade {
-    display: flex;
-    flex-wrap: wrap;
-    width: 456px;
-    height: 456px;
-    background-color: #BBADA0;
-    border: 7px solid #BBADA0;
-    border-radius: 6px;
-    margin-top: 20px;
+    display: grid;
+    grid-template-columns: repeat(4, 100px);
+    grid-gap: 10px;
+    background-color: #bbada0;
+    border-radius: 10px;
+    padding: 10px;
 }
 
 .grade div {
     width: 100px;
     height: 100px;
-    margin: 7px;
-    border-radius: 3px;
-    background-color: #EEE4DA;
-    color: #afa192;
+    background-color: #cdc1b4;
+    border-radius: 5px;
+    font-size: 30px;
     font-weight: bold;
-    text-align: center;
-    font-size: 60px;
-    line-height: 1.6;
+    color: #776e65;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .score-container {
