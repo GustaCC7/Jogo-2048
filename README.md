@@ -12,5 +12,5 @@ princípios de imutabilidade e previsibilidade da programação funcional.
 <h3>A movimentação do jogo é dada através das quatro setas do teclado(← → ↑ ↓).</h3>
 
 <h2>Acesso:</h2>
-<h3>Para ter acesso jogo basta clicar no link a seguir</h3>
+<h3>Para ter acesso ao jogo basta clicar no link a seguir</h3>
 https://2048-pf.netlify.app/
