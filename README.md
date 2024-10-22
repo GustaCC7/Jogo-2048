@@ -1,5 +1,5 @@
 <h1 align="center"> 2048 </h1>
-![Print demonstrativo do jogo](<image/Captura de tela 2024-10-22 010308.png>)
+<img src="image\Captura de tela 2024-10-22 010308.png" alt="Print demonstrativo do jogo">
 
 <h3>Inicialmente o projeto foi idealizado com o intuito de promover um jogo
 que em sua essência seja aleatório, mas que o código do mesmo cumpra com os
