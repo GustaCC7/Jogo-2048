@@ -47,19 +47,38 @@ h1 {
 
 .score-container {
     text-align: center;
+    font-size: 17px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     width: 100px;
     height: 90px;
     border-radius: 13px;
-    background-color: #8f7a66;
-    color: #edc22e;
+    background-color: #edc22e;
+    color: #624d38;
 }
 
 #pontuação {
     font-size: 16px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 #resultado {
     font-size: 20px;
     font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     color: #edc22e;
+}
+
+button {
+    position: relative;
+    top: 14px;
+    left: 0;
+    text-align: center;
+    color: #edc22e;
+    font-size:  18px;;
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif ;
+    width:100px;
+    height: 35px;
+    border-color:#8f7a66;
+    border-radius: 7px;
+    background-color: #8f7a66;
+    
 }

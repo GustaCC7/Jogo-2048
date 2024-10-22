@@ -38,6 +38,18 @@ document.addEventListener('DOMContentLoaded', () => {
         return Object.freeze(novaGrade) // Retorna uma grade imutável
     }
 
+    // Função para resetar o jogo
+    const resetarJogo = () => {
+        estado = inicializar() // Recarrega o estado inicial
+        rederizaGrade(estado.grade) // Rederiza a grade inicial
+        elementoPontuacao.textContent = estado.pontuacao // Reinicia a pontuação
+        document.getElementById('resultado').textContent = 'Junte os números e chegue ao 2048' //Reinicia o resultado
+    }
+
+    // Captura o botão de reset e adiciona o evento de clique
+    const botaoResetar = document.getElementById('botão-resetar')
+    botaoResetar.addEventListener('click', resetarJogo)
+
     // Encontra todas as células vazias na grade
     const obterCélulasVazias = (grade) =>
         grade.reduce(
