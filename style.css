@@ -25,7 +25,7 @@ h1 {
 
 .grade {
     display: grid;
-    grid-template-columns: repeat(4, 100px);
+    grid-template-columns: repeat(4, 105px);
     grid-gap: 10px;
     background-color: #bbada0;
     border-radius: 10px;
