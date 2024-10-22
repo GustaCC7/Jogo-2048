@@ -126,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
         rederizaGrade(estadoAtualizado.grade) // Renderiza a nova grade
 
         if (estadoAtualizado.fimDeJogo) {
-            document.getElementById('resultado').textContent = 'Fim de jogo! Reinicie o jogo para tentar novamente.'
+            document.getElementById('resultado').textContent = 'Fim de jogo! Você não tem movimentos disponiveis.'
         }
 
         return estadoAtualizado
